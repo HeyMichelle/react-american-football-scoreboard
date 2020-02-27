@@ -80,6 +80,13 @@
   height: 20rem;
 }
 
+.startGame {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  place-items: center;
+}
+
 .down,
 .toGo,
 .ballOn,
