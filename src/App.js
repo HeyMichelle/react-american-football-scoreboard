@@ -1,6 +1,6 @@
 //TODO: STEP 1 - Import the useState hook.
-import React, {useState} from "react";
-import "./App.css";
+import React, {useState, useEffect} from "react";
+import "./App.scss";
 import BottomRow from "./BottomRow";
 
 function App() {
@@ -11,6 +11,14 @@ function App() {
   const [awayScore, setAwayScore] = useState(0);
   const [quarter, setQuarter] = useState(1);
 
+  const [isActive, setActive] = useState(true);  
+  const [time, setTime] = useState[900]; // timer, use seconds for now
+
+  const format = () => {
+    let minutes = Math.floor(time/60);
+    let seconds = time % 60;
+    return `${minutes.toString().padStart(2,0)}:${seconds.toString().padStart(2,0)}`
+  };
 
   const touchDownHome = (e) => {
     setHomeScore(homeScore + 7);
@@ -31,7 +39,31 @@ function App() {
     setAwayScore(0);
     setQuarter(0);
   };
-  
+
+  useEffect(
+    () => {
+      let int = null;
+      if (isActive && time > 0) {
+            int = setInterval(() => {
+              setTime((time) => time - 1);
+            }, 1000);
+      } else if (!isActive && time !== 0) {
+              clearInterval(int);
+      } else if (time === 0 && quarter <= 4) {
+            console.log('stopped here')
+              clearInterval(int);
+              setTime(900);
+              nextQuarter();
+      } else if ((time === 0 && quarter === 4) || quarter === 'OT' || quarter === 'OT2') {
+              clearInterval(int);
+              nextQuarter();
+              setTime(900);
+      } 
+      return () => clearInterval(int);
+    }, 
+    [time, isActive],
+  );
+
   const leader = homeScore > awayScore ? `Home Team Wins` : `Away Team Wins`;
 
   const nextQuarter = (e) => {
@@ -62,7 +94,7 @@ function App() {
             <h2 className="home__name">Cats</h2>
             <div className="home__score">{homeScore}</div>
           </div>
-          <div className="timer">00:03</div>
+          <div className="timer">{format()}</div>
           <div className="away">
             <h2 className="away__name">Dogs</h2>
             <div className="away__score">{awayScore}</div>
@@ -79,10 +111,13 @@ function App() {
           <button onClick={touchDownHome} className="homeButtons__touchdown">Home Touchdown</button>
           <button onClick={fieldGoalHome} className="homeButtons__fieldGoal">Home Field Goal</button>
         </div>
+        
         <div className="awayButtons">
           <button onClick={touchDownAway} className="awayButtons__touchdown">Away Touchdown</button>
           <button onClick={fieldGoalAway} className="awayButtons__fieldGoal">Away Field Goal</button>
+          <button onClick={() => setActive(!isActive)}>Pause Game</button>
         </div>
+
       </section>
     </div>
   );
